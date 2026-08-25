@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>冬泳人群综合健康评估</title>
+<style>
+:root{--primary:#176b87;--bg:#f4f8fa;--card:#fff;--text:#20323b;--muted:#667780;--border:#dce7eb}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,"Microsoft YaHei",sans-serif;color:var(--text);line-height:1.65}
+header{background:linear-gradient(135deg,#176b87,#2b9a9a);color:#fff;padding:28px 16px;text-align:center}
+main{max-width:960px;margin:20px auto;padding:0 12px}.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px;margin:16px 0;box-shadow:0 4px 14px rgba(20,50,60,.05)}
+h1{margin:0 0 6px;font-size:26px}h2{margin-top:0;color:var(--primary)}h3{margin-bottom:8px}
+.note{background:#eef7fa;border-left:4px solid var(--primary);padding:12px 14px;border-radius:8px}.warning{background:#fff7e8;border-left:4px solid #e49b21;padding:12px 14px;border-radius:8px}
+label{display:block;margin:8px 0;cursor:pointer}.q{padding:12px 0;border-bottom:1px solid #edf1f2}.q:last-child{border-bottom:0}
+input[type=text],input[type=number],input[type=time],select{padding:9px;border:1px solid #cbd9de;border-radius:8px;font-size:15px;max-width:100%}
+.option{display:inline-flex;align-items:center;gap:6px;margin:5px 12px 5px 0}.option input{accent-color:var(--primary)}
+button{border:0;border-radius:10px;padding:12px 18px;background:var(--primary);color:#fff;font-size:16px;cursor:pointer;margin:5px 8px 5px 0}
+button.secondary{background:#6d7e86}button:disabled{opacity:.5}
+.progress{height:9px;background:#e5eef1;border-radius:9px;overflow:hidden}.progress>div{height:100%;background:var(--primary);width:0}
+.score{font-size:30px;font-weight:700;color:var(--primary)}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.badge{display:inline-block;padding:3px 9px;border-radius:20px;background:#edf5f7;margin-left:6px}
+.small{font-size:13px;color:var(--muted)}table{width:100%;border-collapse:collapse}td,th{border-bottom:1px solid var(--border);padding:8px;text-align:left}
+.hidden{display:none}.sticky{position:sticky;bottom:10px;text-align:center}
+@media(max-width:600px){.card{padding:15px}h1{font-size:22px}.option{display:flex;margin-right:0}}
+</style>
+</head>
+<body>
+<header>
+<h1>冬泳人群综合健康评估</h1>
+<div>SF-36 健康调查 + SAS 焦虑自评量表 + PSQI 睡眠质量指数</div>
+</header>
+<main>
+<div class="card">
+<h2>填写说明</h2>
+<div class="note">本网页用于科研健康状态评估。提交后会自动计算三个量表并生成个人报告；报告仅用于研究/健康教育，不替代医生诊断。</div>
+<div class="warning">请按真实情况填写。建议在相对安静的环境一次完成。PSQI按“近1个月”回答；SF-36和SAS按题目要求回答。</div>
+<div class="progress"><div id="bar"></div></div>
+</div>
+
+<form id="form">
+<div class="card">
+<h2>一、基本信息</h2>
+<div class="grid">
+<label>志愿者编号（研究人员分配）<input required name="pid" type="text" placeholder="如 WS001"></label>
+<label>年龄<input required name="age" type="number" min="18" max="120"></label>
+<label>性别<select required name="sex"><option value="">请选择</option><option>男</option><option>女</option><option>其他/不便回答</option></select></label>
+<label>评估日期<input name="date" type="date"></label>
+</div>
+</div>
+
+<div class="card" id="sf36"><h2>二、SF-36 健康调查</h2>
+<div id="sf36box"></div></div>
+<div class="card" id="sas"><h2>三、SAS 焦虑自评量表</h2><p class="small">每题请选择最符合您近况的选项。</p><div id="sasbox"></div></div>
+<div class="card" id="psqi"><h2>四、PSQI 匹兹堡睡眠质量指数</h2><p class="small">以下问题均针对近1个月。</p><div id="psqibox"></div></div>
+
+<div class="card sticky"><button type="submit">提交并生成我的个人报告</button><button type="button" class="secondary" onclick="saveDraft()">保存当前填写进度</button></div>
+</form>
+
+<div id="report" class="card hidden"></div>
+</main>
+
+<script>
+const API_URL = "PASTE_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE";
+
+const sasQs=[
+"我觉得比平常容易紧张和着急（焦虑）。","我无缘无故地感到害怕（害怕）。","我容易心里烦乱或觉得惊恐（惊恐）。","我觉得我可能将要发疯（发疯感）。","我觉得一切都很好，也不会发生什么不幸（不幸预感）。","我手脚发抖打颤（手足颤抖）。","我因为头痛，颈痛和背痛而苦恼（躯体疼痛）。","我感觉容易衰弱和疲乏（乏力）。","我觉得心平气和，并且容易安静坐着（静坐不能）。","我觉得心跳很快（心慌）。","我因为一阵阵头晕而苦恼（头昏）。","我有晕倒发作或觉得要晕倒似的（晕厥感）。","我呼气吸气都感到很容易（呼吸困难）。","我手脚麻木和刺痛（手足刺痛）。","我因为胃痛和消化不良而苦恼（胃痛或消化不良）。","我常常要小便（尿意频数）。","我的手常常是干燥温暖的（多汗）。","我脸红发热（面部潮红）。","我容易入睡并且一夜睡得很好（睡眠障碍）。","我做恶梦。"];
+const sasOpts=["没有或很少时间有","有时有","大部分时间有","绝大部分或全部时间都有"];
+
+const sf=[
+["1","总体来讲，您的健康状况是？",["非常好","很好","好","一般","差"]],
+["2","跟一年以前比，您觉得您现在的健康状况是？",["比1年前好多了","比1年前好一些","跟1年前差不多","比1年前差一些","比1年前差多了"]],
+["3a","重体力活动，如跑步、举重、参加剧烈运动等：",["限制很大","有些限制","毫无限制"]],
+["3b","适度活动，如移动一张桌子、扫地、快步走等：",["限制很大","有些限制","毫无限制"]],
+["3c","手提日用品，如买菜、购物等：",["限制很大","有些限制","毫无限制"]],
+["3d","上几层楼：",["限制很大","有些限制","毫无限制"]],
+["3e","上一层楼：",["限制很大","有些限制","毫无限制"]],
+["3f","弯腰、屈膝或下蹲：",["限制很大","有些限制","毫无限制"]],
+["3g","步行1500m以上的路程：",["限制很大","有些限制","毫无限制"]],
+["3h","步行1000m的路程：",["限制很大","有些限制","毫无限制"]],
+["3i","步行100m的路程：",["限制很大","有些限制","毫无限制"]],
+["3j","自己洗澡或穿衣：",["限制很大","有些限制","毫无限制"]],
+["4a","过去4周，因为身体健康原因，减少了多少工作或其他活动时间？",["所有的时间","大部分时间","部分时间","小部分时间","没有减少时间"]],
+["4b","过去4周，因为身体健康原因，有多少时间您想做的事没做成？",["所有的时间","大部分时间","部分时间","小部分时间","没有减少时间"]],
+["4c","过去4周，因为身体健康原因，有多少时间您的工作或活动受到限制？",["所有的时间","大部分时间","部分时间","小部分时间","没有减少时间"]],
+["4d","过去4周，因为身体健康原因，有多少时间您完成工作或其他活动有困难（需要额外努力）？",["所有的时间","大部分时间","部分时间","小部分时间","没有减少时间"]],
+["5a","过去4周，因为情绪原因，减少了多少工作或活动时间？",["所有的时间","大部分时间","部分时间","小部分时间","没有减少时间"]],
+["5b","过去4周，因为情绪原因，有多少时间您想做的事没做成？",["所有的时间","大部分时间","部分时间","小部分时间","没有减少时间"]],
+["5c","过去4周，因为情绪原因，有多少时间工作或活动不如平时仔细？",["所有的时间","大部分时间","部分时间","小部分时间","没有减少时间"]],
+["6","过去4周，您的健康或情绪不好在多大程度上影响了您与家人、朋友、邻居或团体的正常社会交往？",["完全没有影响","有一点影响","中等影响","影响很大","影响非常大"]],
+["7","过去4周，您有身体疼痛吗？",["完全没有疼痛","有一点疼痛","轻度疼痛","重度疼痛","极重度疼痛"]],
+["8","过去4周，您的身体疼痛影响了您的工作和家务吗？",["完全没有影响","有一些影响","中等影响","影响很大","影响非常大"]],
+["9a","过去4周，您觉得生活充实的时间有多少？",["所有的时间","大部分时间","部分时间","小部分时间","没有这种感觉"]],
+["9b","过去4周，您觉得很紧张的时间有多少？",["所有的时间","大部分时间","部分时间","小部分时间","没有这种感觉"]],
+["9c","过去4周，您的情绪非常不好，以至于什么事都不能让您高兴的时间有多少？",["所有的时间","大部分时间","部分时间","小部分时间","没有这种感觉"]],
+["9d","过去4周，您的心里很平静的时间有多少？",["所有的时间","大部分时间","部分时间","小部分时间","没有这种感觉"]],
+["9e","过去4周，您觉得精力充沛的时间有多少？",["所有的时间","大部分时间","部分时间","小部分时间","没有这种感觉"]],
+["9f","过去4周，您觉得情绪低落的时间有多少？",["所有的时间","大部分时间","部分时间","小部分时间","没有这种感觉"]],
+["9g","过去4周，您觉得筋疲力尽的时间有多少？",["所有的时间","大部分时间","部分时间","小部分时间","没有这种感觉"]],
+["9h","过去4周，您是快乐的时间有多少？",["所有的时间","大部分时间","部分时间","小部分时间","没有这种感觉"]],
+["9i","过去4周，您感觉厌倦的时间有多少？",["所有的时间","大部分时间","部分时间","小部分时间","没有这种感觉"]],
+["10","过去4周，您的身体或情绪问题影响社会活动（如走亲访友）的时间有多少？",["所有的时间","大部分时间","部分时间","小部分时间","没有这种感觉"]],
+["11a","我好像比别人容易生病：",["绝对正确","大部分正确","不能肯定","大部分错误","绝对错误"]],
+["11b","我跟周围人一样健康：",["绝对正确","大部分正确","不能肯定","大部分错误","绝对错误"]],
+["11c","我认为我的健康状况在变差：",["绝对正确","大部分正确","不能肯定","大部分错误","绝对错误"]],
+["11d","我的健康状况非常好：",["绝对正确","大部分正确","不能肯定","大部分错误","绝对错误"]]
+];
+
+const psqi=[
+["q1","近1个月，晚上上床睡觉通常在几点钟？","time"],
+["q2","近1个月，从上床到入睡通常需要多少分钟？",["≤15 min","16–30 min","31–60 min","≥60 min"]],
+["q3","近1个月，通常早上几点起床？","time"],
+["q4","近1个月，每夜通常实际睡眠多少小时（不等于卧床时间）？",[">7 h","6–7 h","5–6 h","<5 h"]],
+["q5a","入睡困难（30分钟内不能入睡）",["无","<1次/周","1–2次/周","≥3次/周"]],
+["q5b","夜间易醒或早醒",["无","<1次/周","1–2次/周","≥3次/周"]],
+["q5c","夜间去厕所",["无","<1次/周","1–2次/周","≥3次/周"]],
+["q5d","呼吸不畅",["无","<1次/周","1–2次/周","≥3次/周"]],
+["q5e","咳嗽或鼾声高",["无","<1次/周","1–2次/周","≥3次/周"]],
+["q5f","感觉冷",["无","<1次/周","1–2次/周","≥3次/周"]],
+["q5g","感觉热",["无","<1次/周","1–2次/周","≥3次/周"]],
+["q5h","做噩梦",["无","<1次/周","1–2次/周","≥3次/周"]],
+["q5i","疼痛不适",["无","<1次/周","1–2次/周","≥3次/周"]],
+["q5j","其它影响睡眠的事情",["无","<1次/周","1–2次/周","≥3次/周"]],
+["q6","近1个月，总的来说，您认为您的睡眠质量：",["很好","较好","较差","很差"]],
+["q7","近1个月，您用药物催眠的情况：",["无","<1次/周","1–2次/周","≥3次/周"]],
+["q8","近1个月，您常感到困倦吗？",["无","<1次/周","1–2次/周","≥3次/周"]],
+["q9","近1个月，您做事情的精力不足吗？",["没有","偶尔有","有时有","经常有"]]
+];
+
+function radio(name,opts){return opts.map((x,i)=>`<label class="option"><input required type="radio" name="${name}" value="${i+1}">${x}</label>`).join("")}
+function render(){
+ document.getElementById("sasbox").innerHTML=sasQs.map((q,i)=>`<div class="q"><b>${i+1}. ${q}</b>${radio("sas"+(i+1),sasOpts)}</div>`).join("");
+ document.getElementById("sf36box").innerHTML=sf.map(q=>`<div class="q"><b>${q[0]}. ${q[1]}</b>${radio("sf"+q[0],q[2])}</div>`).join("");
+ document.getElementById("psqibox").innerHTML=psqi.map(q=>`<div class="q"><b>${q[1]}</b>${q[2]==="time"?`<input required name="${q[0]}" type="time">`:radio(q[0],q[2])}</div>`).join("");
+ document.querySelector('input[name="date"]').value=new Date().toISOString().slice(0,10);
+}
+render();
+
+function vals(prefix,n){let a=[];for(let i=1;i<=n;i++)a.push(Number(document.querySelector(`[name="${prefix}${i}"]`).value||document.querySelector(`[name="${prefix}${i}"]:checked`)?.value));return a}
+function sfScore(){
+ const v={}; sf.forEach(q=>v[q[0]]=Number(document.querySelector(`[name="sf${q[0]}"]:checked`).value));
+ const scale={PF:["3a","3b","3c","3d","3e","3f","3g","3h","3i","3j"],RP:["4a","4b","4c","4d"],RE:["5a","5b","5c"],SF:["6","10"],BP:["7","8"],VT:["9e","9g"],MH:["9b","9c","9d","9f","9h"],GH:["1","11a","11b","11c","11d"]};
+ // Standard RAND-36 0-100 transformation.
+ const score=(key,items)=>{
+   let arr=items.map(k=>v[k]);
+   if(key==="PF") arr=arr.map(x=>(x-1)*50);
+   else if(key==="RP"||key==="RE") arr=arr.map(x=>(x-1)*25);
+   else if(key==="SF") arr=[(v["6"]===1?100:v["6"]===2?75:v["6"]===3?50:v["6"]===4?25:0),(v["10"]===1?0:v["10"]===2?25:v["10"]===3?50:v["10"]===4?75:100)];
+   else if(key==="BP") arr=[v["7"]===1?100:v["7"]===2?80:v["7"]===3?60:v["7"]===4?40:20,v["8"]===1?100:v["8"]===2?75:v["8"]===3?50:v["8"]===4?25:0];
+   else if(key==="VT") arr=[v["9e"]===1?100:v["9e"]===2?75:v["9e"]===3?50:v["9e"]===4?25:0,v["9g"]===1?0:v["9g"]===2?25:v["9g"]===3?50:v["9g"]===4?75:100];
+   else if(key==="MH") arr=[v["9b"]===1?0:v["9b"]===2?25:v["9b"]===3?50:v["9b"]===4?75:100,v["9c"]===1?0:v["9c"]===2?25:v["9c"]===3?50:v["9c"]===4?75:100,v["9d"]===1?100:v["9d"]===2?75:v["9d"]===3?50:v["9d"]===4?25:0,v["9f"]===1?0:v["9f"]===2?25:v["9f"]===3?50:v["9f"]===4?75:100,v["9h"]===1?100:v["9h"]===2?75:v["9h"]===3?50:v["9h"]===4?25:0];
+   else if(key==="GH") arr=[v["1"]===1?100:v["1"]===2?75:v["1"]===3?50:v["1"]===4?25:0,v["11a"]===1?0:v["11a"]===2?25:v["11a"]===3?50:v["11a"]===4?75:100,v["11b"]===1?100:v["11b"]===2?75:v["11b"]===3?50:v["11b"]===4?25:0,v["11c"]===1?0:v["11c"]===2?25:v["11c"]===3?50:v["11c"]===4?75:100,v["11d"]===1?100:v["11d"]===2?75:v["11d"]===3?50:v["11d"]===4?25:0];
+   return Math.round(arr.reduce((a,b)=>a+b,0)/arr.length*10)/10;
+ };
+ const out={};Object.entries(scale).forEach(([k,it])=>out[k]=score(k,it)); return out;
+}
+function sasScore(){
+ let raw=0;for(let i=1;i<=20;i++){let x=Number(document.querySelector(`[name="sas${i}"]:checked`).value);if([5,9,13,17,19].includes(i))x=5-x;raw+=x}
+ const index=Math.round(raw*1.25);return {raw,index};
+}
+function psqiScore(){
+ const n=k=>Number(document.querySelector(`[name="${k}"]:checked`)?.value||0);
+ let c1=n("q6")-1;
+ let c2sum=(n("q2")-1)+(n("q5a")-1); let c2=c2sum===0?0:c2sum<=2?1:c2sum<=4?2:3;
+ let c3=n("q4")-1;
+ let c4=n("q1")?0:0; // calculated below from bedtime/wake/sleep duration
+ const bed=document.querySelector('[name="q1"]').value, wake=document.querySelector('[name="q3"]').value;
+ let eff=0;
+ if(bed&&wake){let [bh,bm]=bed.split(":").map(Number),[wh,wm]=wake.split(":").map(Number);let b=bh*60+bm,w=wh*60+wm;if(w<=b)w+=1440;let hours=(w-b)/60;let sleep=[">7 h","6–7 h","5–6 h","<5 h"][n("q4")-1];let sh=sleep===">7 h"?7.5:sleep==="6–7 h"?6.5:sleep==="5–6 h"?5.5:4.5;eff=sh/hours*100;}
+ let c4=eff>=85?0:eff>=75?1:eff>=65?2:3;
+ let c5sum=0;["q5b","q5c","q5d","q5e","q5f","q5g","q5h","q5i","q5j"].forEach(k=>c5sum+=n(k)-1);let c5=c5sum===0?0:c5sum<=9?1:c5sum<=18?2:3;
+ let c6=n("q7")-1,c7=n("q8")-1; // energy item is q9
+ c7=n("q9")-1;
+ const comps=[c1,c2,c3,c4,c5,c6,c7];return {components:comps,total:comps.reduce((a,b)=>a+b,0)};
+}
+function interpretation(sas,psqi,sf){
+ let anxiety=sas.index>=70?"焦虑水平较高，建议进一步进行专业评估。":sas.index>=60?"提示中度焦虑倾向，建议关注近期压力、情绪和身体症状。":sas.index>=50?"提示轻度焦虑倾向，建议关注近期情绪状态并保持规律作息和运动。":"未达到上述焦虑分层的提示范围。";
+ let sleep=psqi.total>5?"PSQI >5，提示睡眠质量可能存在明显问题，建议结合具体睡眠症状进一步关注。":"PSQI ≤5，整体睡眠质量处于较好范围。";
+ let best=Object.entries(sf).sort((a,b)=>b[1]-a[1])[0],low=Object.entries(sf).sort((a,b)=>a[1]-b[1])[0];
+ return {anxiety,sleep,best,low};
+}
+document.getElementById("form").addEventListener("submit",async e=>{
+ e.preventDefault();
+ const sas=sasScore(),psqi=psqiScore(),sf=sfScore(),f=new FormData(e.target);
+ const data={timestamp:new Date().toISOString(),pid:f.get("pid"),age:f.get("age"),sex:f.get("sex"),date:f.get("date"),sas,psqi,sf,raw:Object.fromEntries(f.entries())};
+ const it=interpretation(sas,psqi,sf);
+ const report=document.getElementById("report");report.classList.remove("hidden");
+ report.innerHTML=`<h2>您的综合评估报告</h2><p>志愿者编号：<b>${data.pid}</b>　评估日期：${data.date}</p>
+ <div class="grid">
+ <div><h3>SAS 焦虑</h3><div class="score">${sas.index}</div><p>原始分 ${sas.raw}；${it.anxiety}</p></div>
+ <div><h3>PSQI 睡眠</h3><div class="score">${psqi.total}/21</div><p>${it.sleep}</p></div>
+ <div><h3>SF-36</h3><div class="score">${Math.round(Object.values(sf).reduce((a,b)=>a+b,0)/8)}</div><p>8个维度均为0–100分，高分代表更好的健康状态。最高维度：${it.best[0]} ${it.best[1]}；最低维度：${it.low[0]} ${it.low[1]}。</p></div></div>
+ <h3>SF-36 八维度</h3><table><tr><th>维度</th><th>得分</th></tr>${Object.entries(sf).map(([k,v])=>`<tr><td>${k}</td><td>${v}</td></tr>`).join("")}</table>
+ <div class="warning"><b>重要：</b>这是一份科研筛查/健康反馈报告，不是疾病诊断书。SAS、PSQI和SF-36的分数应结合研究对象特征、既往病史及专业人员判断解释。</div>
+ <button onclick="window.print()">打印/保存PDF</button></div>`;
+ window.scrollTo({top:document.body.scrollHeight,behavior:"smooth"});
+ if(API_URL && !API_URL.includes("PASTE_")){
+   try{await fetch(API_URL,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(data)});alert("提交成功，个人报告已生成。");}
+   catch(err){alert("报告已生成，但数据自动上传失败。请联系研究人员。");}
+ }else alert("报告已生成。当前网页尚未连接数据后台，因此暂未上传研究数据。");
+});
+function saveDraft(){localStorage.setItem("winterSwimDraft",JSON.stringify(Object.fromEntries(new FormData(document.getElementById("form")).entries())));alert("已保存到本设备浏览器。");}
+document.getElementById("form").addEventListener("change",()=>{let n=document.querySelectorAll("input:checked,input[type=time],input[type=text],input[type=number],select").length;document.getElementById("bar").style.width=Math.min(100,n/70*100)+"%"});
+</script>
+</body></html>
