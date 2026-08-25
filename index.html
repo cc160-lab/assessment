@@ -3,39 +3,70 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="冬泳人群综合健康评估：SF-36、SAS、PSQI">
+<meta name="description" content="冬泳人群综合健康评估：冬泳行为、RPE、SF-36、SAS、PSQI">
 <title>冬泳人群综合健康评估</title>
 <style>
-:root{--primary:#176b87;--primary2:#238a9a;--bg:#f4f8fa;--card:#fff;--text:#20323b;--muted:#667780;--border:#dbe7eb;--danger:#b42318}
+:root{
+  --primary:#176b87;--primary2:#238a9a;--bg:#f4f8fa;--card:#fff;
+  --text:#20323b;--muted:#667780;--border:#dbe7eb;--danger:#b42318;
+}
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;font-size:16px;line-height:1.65}
-header{background:linear-gradient(135deg,var(--primary),var(--primary2));color:white;padding:25px 16px 22px;text-align:center}
+body{
+  margin:0;background:var(--bg);color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC",
+  "Microsoft YaHei",sans-serif;font-size:16px;line-height:1.65
+}
+header{
+  background:linear-gradient(135deg,var(--primary),var(--primary2));
+  color:white;padding:25px 16px 22px;text-align:center
+}
 header h1{font-size:25px;margin:0 0 5px;font-weight:700}
 header p{margin:0;opacity:.92;font-size:14px}
 main{max-width:900px;margin:0 auto;padding:14px 12px 40px}
-.card{background:var(--card);border:1px solid var(--border);border-radius:17px;margin:14px 0;padding:20px;box-shadow:0 3px 12px rgba(20,50,60,.045)}
+.card{
+  background:var(--card);border:1px solid var(--border);border-radius:17px;
+  margin:14px 0;padding:20px;box-shadow:0 3px 12px rgba(20,50,60,.045)
+}
 .section-title{color:var(--primary);font-size:22px;margin:0 0 14px}
-.instruction{background:#edf7f9;border-left:4px solid var(--primary);padding:12px 14px;border-radius:8px;margin-bottom:14px}
-.notice{background:#fff8e8;border-left:4px solid #e6a23c;padding:12px 14px;border-radius:8px}
+.instruction{
+  background:#edf7f9;border-left:4px solid var(--primary);
+  padding:12px 14px;border-radius:8px;margin-bottom:14px
+}
+.notice{
+  background:#fff8e8;border-left:4px solid #e6a23c;
+  padding:12px 14px;border-radius:8px
+}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:13px}
 .field label{font-weight:600;display:block;margin-bottom:5px}
-input[type=text],input[type=number],input[type=date],input[type=time],select{width:100%;padding:11px 12px;border:1px solid #c9d8de;border-radius:10px;background:white;font-size:16px;color:var(--text)}
+input[type=text],input[type=number],input[type=date],input[type=time],select{
+  width:100%;padding:11px 12px;border:1px solid #c9d8de;border-radius:10px;
+  background:white;font-size:16px;color:var(--text)
+}
 .q{padding:17px 0;border-bottom:1px solid #e9eff1}
 .q:last-child{border-bottom:0}
 .q-title{font-weight:600;margin-bottom:9px}
 .options{display:flex;flex-wrap:wrap;gap:8px}
-.option{display:flex;align-items:flex-start;gap:7px;padding:8px 10px;border:1px solid #dce7eb;border-radius:10px;background:#fbfdfe;cursor:pointer;font-weight:400}
+.option{
+  display:flex;align-items:flex-start;gap:7px;padding:8px 10px;
+  border:1px solid #dce7eb;border-radius:10px;background:#fbfdfe;
+  cursor:pointer;font-weight:400
+}
 .option:hover{background:#f0f8fa}
 .option input{margin-top:4px;accent-color:var(--primary)}
 .option:has(input:checked){border-color:var(--primary);background:#edf7f9}
 .sub{font-weight:500;color:#344b55;margin-bottom:8px}
 .required{color:var(--danger)}
-.progress-wrap{position:sticky;top:0;z-index:5;background:rgba(244,248,250,.96);padding:8px 0}
+.progress-wrap{
+  position:sticky;top:0;z-index:5;background:rgba(244,248,250,.96);padding:8px 0
+}
 .progress{height:7px;background:#dfeaec;border-radius:10px;overflow:hidden}
 .progress-bar{height:100%;width:0;background:var(--primary2);transition:width .2s}
 .actions{text-align:center;padding-top:5px}
-button{border:0;border-radius:11px;padding:13px 20px;background:var(--primary);color:#fff;font-size:17px;font-weight:600;cursor:pointer;margin:4px}
+button{
+  border:0;border-radius:11px;padding:13px 20px;background:var(--primary);
+  color:#fff;font-size:17px;font-weight:600;cursor:pointer;margin:4px
+}
 button.secondary{background:#71838a}
 button.light{background:#e8f2f4;color:#185d6f}
 button:disabled{opacity:.55;cursor:not-allowed}
@@ -45,65 +76,201 @@ button:disabled{opacity:.55;cursor:not-allowed}
 .score-card{border:1px solid var(--border);border-radius:13px;padding:14px}
 .score-num{font-size:30px;color:var(--primary);font-weight:750}
 .badge{display:inline-block;border-radius:999px;background:#edf7f9;padding:3px 9px;font-size:13px}
+.rpe-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px
+}
+.rpe-option{
+  border:1px solid #dce7eb;border-radius:12px;padding:10px 6px;
+  text-align:center;background:#fbfdfe;cursor:pointer
+}
+.rpe-option input{display:none}
+.rpe-option:has(input:checked){
+  border-color:var(--primary);background:#edf7f9;color:var(--primary);font-weight:700
+}
+.rpe-number{font-size:22px;font-weight:700;display:block}
+.rpe-desc{font-size:13px}
+.rpe-guide{
+  margin-top:12px;border:1px solid var(--border);border-radius:12px;overflow:hidden
+}
+.rpe-guide-row{
+  display:grid;grid-template-columns:90px 1fr;padding:7px 10px;
+  border-bottom:1px solid var(--border)
+}
+.rpe-guide-row:last-child{border-bottom:0}
 table{width:100%;border-collapse:collapse}
 th,td{padding:9px;border-bottom:1px solid var(--border);text-align:left}
 .error{color:var(--danger);font-weight:600}
 footer{text-align:center;color:var(--muted);font-size:12px;padding:12px}
 @media(max-width:600px){
- main{padding:8px 8px 30px}
- .card{padding:15px;border-radius:14px}
- header h1{font-size:22px}
- .section-title{font-size:20px}
- .option{width:100%}
+  main{padding:8px 8px 30px}
+  .card{padding:15px;border-radius:14px}
+  header h1{font-size:22px}
+  .section-title{font-size:20px}
+  .option{width:100%}
+  .rpe-grid{grid-template-columns:repeat(3,1fr)}
 }
 </style>
 </head>
+
 <body>
 <header>
-<h1>冬泳人群综合健康评估</h1>
-<p>SF-36 健康调查量表 · SAS 焦虑自评量表 · PSQI 匹兹堡睡眠质量指数</p>
+  <h1>冬泳人群综合健康评估</h1>
+  <p>冬泳行为与运动暴露 · SF-36 · SAS · PSQI</p>
 </header>
 
 <main>
 <div class="progress-wrap">
-<div class="progress"><div class="progress-bar" id="progressBar"></div></div>
+  <div class="progress"><div class="progress-bar" id="progressBar"></div></div>
 </div>
 
 <form id="assessmentForm" novalidate>
+
 <section class="card">
-<h2 class="section-title">一、基本信息</h2>
-<div class="instruction">请填写研究人员提供的志愿者编号。建议不要填写姓名、身份证号、手机号等直接身份信息。</div>
-<div class="grid">
-<div class="field"><label>志愿者编号 <span class="required">*</span></label><input required name="pid" type="text" placeholder="如 WS001"></div>
-<div class="field"><label>年龄 <span class="required">*</span></label><input required name="age" type="number" min="18" max="120"></div>
-<div class="field"><label>性别 <span class="required">*</span></label><select required name="sex"><option value="">请选择</option><option value="男">男</option><option value="女">女</option><option value="其他/不便回答">其他/不便回答</option></select></div>
-<div class="field"><label>评估日期</label><input name="date" type="date"></div>
-</div>
+  <h2 class="section-title">一、基本信息</h2>
+  <div class="instruction">
+    请填写研究人员提供的志愿者编号。建议不要填写姓名、身份证号、手机号等直接身份信息。
+  </div>
+  <div class="grid">
+    <div class="field">
+      <label>志愿者编号 <span class="required">*</span></label>
+      <input required name="pid" type="text" placeholder="如 WS001">
+    </div>
+    <div class="field">
+      <label>年龄 <span class="required">*</span></label>
+      <input required name="age" type="number" min="18" max="120">
+    </div>
+    <div class="field">
+      <label>性别 <span class="required">*</span></label>
+      <select required name="sex">
+        <option value="">请选择</option>
+        <option value="男">男</option>
+        <option value="女">女</option>
+        <option value="其他/不便回答">其他/不便回答</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>评估日期</label>
+      <input name="date" type="date">
+    </div>
+  </div>
 </section>
 
 <section class="card">
-<h2 class="section-title">二、SF-36 健康调查</h2>
-<div class="instruction">以下问题主要询问您过去4周的健康状况。请根据您的真实情况选择一个答案。</div>
-<div id="sf36"></div>
+  <h2 class="section-title">二、冬泳行为与运动暴露评价</h2>
+  <div class="instruction">
+    请根据您<strong>本次冬泳</strong>的实际情况填写。没有特殊情况请按照真实体验选择。
+  </div>
+
+  <div class="q">
+    <div class="q-title">1. 每次冬泳前是否进行热身？ <span class="required">*</span></div>
+    <div class="options">
+      <label class="option"><input required type="radio" name="winter_warmup" value="是"><span>是</span></label>
+      <label class="option"><input required type="radio" name="winter_warmup" value="否"><span>否</span></label>
+    </div>
+  </div>
+
+  <div class="q">
+    <div class="q-title">2. 每次冬泳后是否进行保暖？ <span class="required">*</span></div>
+    <div class="options">
+      <label class="option"><input required type="radio" name="winter_rewarming" value="是"><span>是</span></label>
+      <label class="option"><input required type="radio" name="winter_rewarming" value="否"><span>否</span></label>
+    </div>
+  </div>
+
+  <div class="q">
+    <div class="q-title">3. 冬泳过程中是否出现明显寒战？ <span class="required">*</span></div>
+    <div class="options">
+      <label class="option"><input required type="radio" name="winter_shivering" value="从不"><span>从不</span></label>
+      <label class="option"><input required type="radio" name="winter_shivering" value="偶尔"><span>偶尔</span></label>
+      <label class="option"><input required type="radio" name="winter_shivering" value="经常"><span>经常</span></label>
+    </div>
+  </div>
+
+  <div class="q">
+    <div class="q-title">4. 冬泳过程中是否出现明显肢体麻木？ <span class="required">*</span></div>
+    <div class="options">
+      <label class="option"><input required type="radio" name="winter_numbness" value="无"><span>无</span></label>
+      <label class="option"><input required type="radio" name="winter_numbness" value="轻度"><span>轻度</span></label>
+      <label class="option"><input required type="radio" name="winter_numbness" value="中度"><span>中度</span></label>
+      <label class="option"><input required type="radio" name="winter_numbness" value="重度"><span>重度</span></label>
+    </div>
+  </div>
+
+  <div class="q">
+    <div class="q-title">5. 每次冬泳持续时间 <span class="required">*</span></div>
+    <div class="grid">
+      <div class="field">
+        <label>分钟</label>
+        <input required name="winter_duration" type="number" min="1" max="600" placeholder="例如：30">
+      </div>
+    </div>
+  </div>
+
+  <div class="q">
+    <div class="q-title">
+      6. Borg Rating of Perceived Exertion（RPE）运动强度评价
+      <span class="required">*</span>
+    </div>
+    <div class="sub">
+      请根据您刚才进行冬泳时的整体身体用力程度，选择最符合您感受的等级。
+    </div>
+
+    <div class="rpe-grid">
+      <label class="rpe-option"><input required type="radio" name="winter_rpe" value="6"><span class="rpe-number">6</span><span class="rpe-desc">完全不费力</span></label>
+      <label class="rpe-option"><input required type="radio" name="winter_rpe" value="7"><span class="rpe-number">7</span><span class="rpe-desc">极其轻松</span></label>
+      <label class="rpe-option"><input required type="radio" name="winter_rpe" value="8"><span class="rpe-number">8</span><span class="rpe-desc">极其轻松</span></label>
+      <label class="rpe-option"><input required type="radio" name="winter_rpe" value="9"><span class="rpe-number">9</span><span class="rpe-desc">很轻松</span></label>
+      <label class="rpe-option"><input required type="radio" name="winter_rpe" value="10"><span class="rpe-number">10</span><span class="rpe-desc">很轻松</span></label>
+      <label class="rpe-option"><input required type="radio" name="winter_rpe" value="11"><span class="rpe-number">11</span><span class="rpe-desc">比较轻松</span></label>
+      <label class="rpe-option"><input required type="radio" name="winter_rpe" value="12"><span class="rpe-number">12</span><span class="rpe-desc">有些吃力</span></label>
+      <label class="rpe-option"><input required type="radio" name="winter_rpe" value="13"><span class="rpe-number">13</span><span class="rpe-desc">有些吃力</span></label>
+      <label class="rpe-option"><input required type="radio" name="winter_rpe" value="14"><span class="rpe-number">14</span><span class="rpe-desc">有些吃力</span></label>
+      <label class="rpe-option"><input required type="radio" name="winter_rpe" value="15"><span class="rpe-number">15</span><span class="rpe-desc">吃力</span></label>
+      <label class="rpe-option"><input required type="radio" name="winter_rpe" value="16"><span class="rpe-number">16</span><span class="rpe-desc">吃力</span></label>
+      <label class="rpe-option"><input required type="radio" name="winter_rpe" value="17"><span class="rpe-number">17</span><span class="rpe-desc">非常吃力</span></label>
+      <label class="rpe-option"><input required type="radio" name="winter_rpe" value="18"><span class="rpe-number">18</span><span class="rpe-desc">非常吃力</span></label>
+      <label class="rpe-option"><input required type="radio" name="winter_rpe" value="19"><span class="rpe-number">19</span><span class="rpe-desc">极其吃力</span></label>
+      <label class="rpe-option"><input required type="radio" name="winter_rpe" value="20"><span class="rpe-number">20</span><span class="rpe-desc">最大努力</span></label>
+    </div>
+
+    <div class="rpe-guide">
+      <div class="rpe-guide-row"><b>6</b><span>完全不费力</span></div>
+      <div class="rpe-guide-row"><b>7–8</b><span>极其轻松</span></div>
+      <div class="rpe-guide-row"><b>9–10</b><span>很轻松</span></div>
+      <div class="rpe-guide-row"><b>11–12</b><span>比较轻松 / 有些吃力</span></div>
+      <div class="rpe-guide-row"><b>13–14</b><span>有些吃力</span></div>
+      <div class="rpe-guide-row"><b>15–16</b><span>吃力</span></div>
+      <div class="rpe-guide-row"><b>17–18</b><span>非常吃力</span></div>
+      <div class="rpe-guide-row"><b>19</b><span>极其吃力</span></div>
+      <div class="rpe-guide-row"><b>20</b><span>最大努力</span></div>
+    </div>
+  </div>
 </section>
 
 <section class="card">
-<h2 class="section-title">三、SAS 焦虑自评量表</h2>
-<div class="instruction">请根据您近期的实际感受选择最符合的选项。每题只能选择一个答案。</div>
-<div id="sas"></div>
+  <h2 class="section-title">三、SF-36 健康调查</h2>
+  <div class="instruction">以下问题主要询问您过去4周的健康状况。请根据您的真实情况选择一个答案。</div>
+  <div id="sf36"></div>
 </section>
 
 <section class="card">
-<h2 class="section-title">四、PSQI 匹兹堡睡眠质量指数</h2>
-<div class="instruction">以下问题均针对<strong>近1个月</strong>。请按照您的通常情况填写。</div>
-<div id="psqi"></div>
+  <h2 class="section-title">四、SAS 焦虑自评量表</h2>
+  <div class="instruction">请根据您近期的实际感受选择最符合的选项。每题只能选择一个答案。</div>
+  <div id="sas"></div>
+</section>
+
+<section class="card">
+  <h2 class="section-title">五、PSQI 匹兹堡睡眠质量指数</h2>
+  <div class="instruction">以下问题均针对<strong>近1个月</strong>。请按照您的通常情况填写。</div>
+  <div id="psqi"></div>
 </section>
 
 <section class="card actions">
-<button type="submit" id="submitBtn">提交并生成我的个人报告</button>
-<button type="button" class="secondary" id="draftBtn">保存当前填写进度</button>
-<div class="small">提交后将自动计算量表结果，并尝试将科研数据发送至研究后台。</div>
+  <button type="submit" id="submitBtn">提交并生成我的个人报告</button>
+  <button type="button" class="secondary" id="draftBtn">保存当前填写进度</button>
+  <div class="small">提交后将自动计算量表结果，并尝试将科研数据发送至研究后台。</div>
 </section>
+
 </form>
 
 <section class="card report" id="report"></section>
@@ -114,6 +281,7 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:12px}
 <script>
 "use strict";
 
+/* 你的 Google Apps Script 后台地址 */
 const API_URL = "https://script.google.com/macros/s/AKfycbxuZwx88EwbDnv2MPg_onhpaTCDTvEPOjQLTDZYV3RyjtyMFEAVt8l2H-EYqhOYRLmu/exec";
 
 const sasQuestions = [
@@ -173,31 +341,47 @@ const psqiQuestions=[
 function escapeHtml(s){
  return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
 }
+
 function makeOptions(name, options){
  return `<div class="options">${options.map((x,i)=>`
- <label class="option"><input required type="radio" name="${name}" value="${i+1}"><span>${escapeHtml(x)}</span></label>`).join("")}</div>`;
+ <label class="option"><input required type="radio" name="${name}" value="${i+1}">
+ <span>${escapeHtml(x)}</span></label>`).join("")}</div>`;
 }
+
 function render(){
  const sf=document.getElementById("sf36");
- sf.innerHTML=sf36Questions.map((q,i)=>`
- <div class="q"><div class="q-title">${q[0]}. ${escapeHtml(q[1])} <span class="required">*</span></div>${makeOptions("sf_"+q[0],q[2])}</div>`).join("");
+ sf.innerHTML=sf36Questions.map(q=>`
+ <div class="q"><div class="q-title">${q[0]}. ${escapeHtml(q[1])}
+ <span class="required">*</span></div>${makeOptions("sf_"+q[0],q[2])}</div>`).join("");
 
  const sas=document.getElementById("sas");
  sas.innerHTML=sasQuestions.map((q,i)=>`
- <div class="q"><div class="q-title">${i+1}. ${escapeHtml(q)} <span class="required">*</span></div>${makeOptions("sas_"+(i+1),sasOptions)}</div>`).join("");
+ <div class="q"><div class="q-title">${i+1}. ${escapeHtml(q)}
+ <span class="required">*</span></div>${makeOptions("sas_"+(i+1),sasOptions)}</div>`).join("");
 
  const psqi=document.getElementById("psqi");
  psqi.innerHTML=`
- <div class="q"><div class="q-title">1. 近1个月，晚上上床睡觉通常在几点钟？ <span class="required">*</span></div><input required type="time" name="psqi_q1"></div>
- <div class="q"><div class="q-title">3. 近1个月，通常早上几点起床？ <span class="required">*</span></div><input required type="time" name="psqi_q3"></div>
+ <div class="q"><div class="q-title">1. 近1个月，晚上上床睡觉通常在几点钟？ <span class="required">*</span></div>
+ <input required type="time" name="psqi_q1"></div>
+ <div class="q"><div class="q-title">3. 近1个月，通常早上几点起床？ <span class="required">*</span></div>
+ <input required type="time" name="psqi_q3"></div>
  ${psqiQuestions.map(q=>`<div class="q"><div class="q-title">${escapeHtml(q[1])} <span class="required">*</span></div>${makeOptions(q[0],q[2])}</div>`).join("")}
  ${["a. 入睡困难（30min内不能入睡）","b. 夜间易醒或早醒","c. 夜间去厕所","d. 呼吸不畅","e. 咳嗽或鼾声高","f. 感觉冷","g. 感觉热","h. 做噩梦","i. 疼痛不适"].map((q,i)=>`
- <div class="q"><div class="sub">5${q} <span class="required">*</span></div>${makeOptions("psqi_5"+String.fromCharCode(97+i),psqiOptions)}</div>`).join("")}
- <div class="q"><div class="sub">5j. 其它影响睡眠的事情（如有，请说明）</div>${makeOptions("psqi_5j",psqiOptions)}<input name="psqi_5j_text" type="text" placeholder="如有，请简要说明（可不填）" style="margin-top:8px"></div>`;
+ <div class="q"><div class="sub">5${q} <span class="required">*</span></div>
+ ${makeOptions("psqi_5"+String.fromCharCode(97+i),psqiOptions)}</div>`).join("")}
+ <div class="q"><div class="sub">5j. 其它影响睡眠的事情（如有，请说明）</div>
+ ${makeOptions("psqi_5j",psqiOptions)}
+ <input name="psqi_5j_text" type="text" placeholder="如有，请简要说明（可不填）" style="margin-top:8px"></div>`;
+
  document.querySelector('[name="date"]').value=new Date().toISOString().slice(0,10);
  updateProgress();
 }
-function getRadio(name){const x=document.querySelector(`input[name="${name}"]:checked`);return x?Number(x.value):null;}
+
+function getRadio(name){
+ const x=document.querySelector(`input[name="${name}"]:checked`);
+ return x?Number(x.value):null;
+}
+
 function getAllRaw(){
  const f=new FormData(document.getElementById("assessmentForm"));
  const obj={};
@@ -222,30 +406,52 @@ function scoreSF36(){
  const mean=a=>Math.round(a.reduce((x,y)=>x+y,0)/a.length*10)/10;
  const p5=x=>(x-1)*25;
  const p4=x=>(x-1)*33.333333;
- const rev5=x=>(5-x)*25;
- const rev4=x=>(4-x)*33.333333;
  const out={};
  out.PF=mean(["3a","3b","3c","3d","3e","3f","3g","3h","3i","3j"].map(k=>p4(v[k])));
  out.RP=mean(["4a","4b","4c","4d"].map(k=>p5(v[k])));
  out.RE=mean(["5a","5b","5c"].map(k=>p5(v[k])));
- out.SF=mean([(v["6"]===1?100:v["6"]===2?75:v["6"]===3?50:v["6"]===4?25:0),(v["10"]===1?0:v["10"]===2?25:v["10"]===3?50:v["10"]===4?75:100)]);
- out.BP=mean([(v["7"]===1?100:v["7"]===2?80:v["7"]===3?60:v["7"]===4?40:20),(v["8"]===1?100:v["8"]===2?75:v["8"]===3?50:v["8"]===4?25:0)]);
- out.VT=mean([(v["9e"]===1?100:v["9e"]===2?75:v["9e"]===3?50:v["9e"]===4?25:0),(v["9g"]===1?0:v["9g"]===2?25:v["9g"]===3?50:v["9g"]===4?75:100)]);
- out.MH=mean([(v["9b"]===1?0:v["9b"]===2?25:v["9b"]===3?50:v["9b"]===4?75:100),(v["9c"]===1?0:v["9c"]===2?25:v["9c"]===3?50:v["9c"]===4?75:100),(v["9d"]===1?100:v["9d"]===2?75:v["9d"]===3?50:v["9d"]===4?25:0),(v["9f"]===1?0:v["9f"]===2?25:v["9f"]===3?50:v["9f"]===4?75:100),(v["9h"]===1?100:v["9h"]===2?75:v["9h"]===3?50:v["9h"]===4?25:0)]);
- out.GH=mean([(v["1"]===1?100:v["1"]===2?75:v["1"]===3?50:v["1"]===4?25:0),(v["11a"]===1?0:v["11a"]===2?25:v["11a"]===3?50:v["11a"]===4?75:100),(v["11b"]===1?100:v["11b"]===2?75:v["11b"]===3?50:v["11b"]===4?25:0),(v["11c"]===1?0:v["11c"]===2?25:v["11c"]===3?50:v["11c"]===4?75:100),(v["11d"]===1?100:v["11d"]===2?75:v["11d"]===3?50:v["11d"]===4?25:0)]);
+ out.SF=mean([
+   v["6"]===1?100:v["6"]===2?75:v["6"]===3?50:v["6"]===4?25:0,
+   v["10"]===1?0:v["10"]===2?25:v["10"]===3?50:v["10"]===4?75:100
+ ]);
+ out.BP=mean([
+   v["7"]===1?100:v["7"]===2?80:v["7"]===3?60:v["7"]===4?40:20,
+   v["8"]===1?100:v["8"]===2?75:v["8"]===3?50:v["8"]===4?25:0
+ ]);
+ out.VT=mean([
+   v["9e"]===1?100:v["9e"]===2?75:v["9e"]===3?50:v["9e"]===4?25:0,
+   v["9g"]===1?0:v["9g"]===2?25:v["9g"]===3?50:v["9g"]===4?75:100
+ ]);
+ out.MH=mean([
+   v["9b"]===1?0:v["9b"]===2?25:v["9b"]===3?50:v["9b"]===4?75:100,
+   v["9c"]===1?0:v["9c"]===2?25:v["9c"]===3?50:v["9c"]===4?75:100,
+   v["9d"]===1?100:v["9d"]===2?75:v["9d"]===3?50:v["9d"]===4?25:0,
+   v["9f"]===1?0:v["9f"]===2?25:v["9f"]===3?50:v["9f"]===4?75:100,
+   v["9h"]===1?100:v["9h"]===2?75:v["9h"]===3?50:v["9h"]===4?25:0
+ ]);
+ out.GH=mean([
+   v["1"]===1?100:v["1"]===2?75:v["1"]===3?50:v["1"]===4?25:0,
+   v["11a"]===1?0:v["11a"]===2?25:v["11a"]===3?50:v["11a"]===4?75:100,
+   v["11b"]===1?100:v["11b"]===2?75:v["11b"]===3?50:v["11b"]===4?25:0,
+   v["11c"]===1?0:v["11c"]===2?25:v["11c"]===3?50:v["11c"]===4?75:100,
+   v["11d"]===1?100:v["11d"]===2?75:v["11d"]===3?50:v["11d"]===4?25:0
+ ]);
  return out;
 }
 
 function scorePSQI(){
  const q1=document.querySelector('[name="psqi_q1"]').value;
  const q3=document.querySelector('[name="psqi_q3"]').value;
- const q2=getRadio("q2"),q4=getRadio("q4"),q6=getRadio("q6"),q7=getRadio("q7"),q8=getRadio("q8"),q9=getRadio("q9");
+ const q2=getRadio("q2"),q4=getRadio("q4"),q6=getRadio("q6"),
+       q7=getRadio("q7"),q8=getRadio("q8"),q9=getRadio("q9");
  const freq=["a","b","c","d","e","f","g","h","i","j"].map(x=>getRadio("psqi_5"+x));
+
  const c1=q6-1;
  const latency=(q2-1)+(freq[0]-1);
  const c2=latency===0?0:latency<=2?1:latency<=4?2:3;
  const c3=q4-1;
  let c4=3;
+
  if(q1 && q3 && q4){
    const [bh,bm]=q1.split(":").map(Number);
    const [wh,wm]=q3.split(":").map(Number);
@@ -265,29 +471,97 @@ function scorePSQI(){
  return {components:comps,total:comps.reduce((a,b)=>a+b,0)};
 }
 
-function interpret(sas,psqi,sf){
- const sasText=sas.index>=70?"焦虑水平较高，建议进一步进行专业评估。":sas.index>=60?"提示中度焦虑倾向，建议关注近期压力和情绪状态。":sas.index>=50?"提示轻度焦虑倾向，建议关注近期情绪和睡眠。":"未达到上述焦虑分层的提示范围。";
- const psqiText=psqi.total>5?"PSQI总分>5，提示睡眠质量可能存在问题，建议结合具体睡眠表现进一步关注。":"PSQI总分≤5，整体未提示明显睡眠质量问题。";
+function rpeInterpret(x){
+ x=Number(x);
+ if(x<=6) return "完全不费力";
+ if(x<=8) return "极其轻松";
+ if(x<=10) return "很轻松";
+ if(x<=12) return "比较轻松 / 有些吃力";
+ if(x<=14) return "有些吃力";
+ if(x<=16) return "吃力";
+ if(x<=18) return "非常吃力";
+ if(x===19) return "极其吃力";
+ return "最大努力";
+}
+
+function interpret(sas,psqi){
+ const sasText=sas.index>=70
+   ?"焦虑水平较高，建议进一步进行专业评估。"
+   :sas.index>=60
+   ?"提示中度焦虑倾向，建议关注近期压力和情绪状态。"
+   :sas.index>=50
+   ?"提示轻度焦虑倾向，建议关注近期情绪和睡眠。"
+   :"未达到上述焦虑分层的提示范围。";
+
+ const psqiText=psqi.total>5
+   ?"PSQI总分>5，提示睡眠质量可能存在问题，建议结合具体睡眠表现进一步关注。"
+   :"PSQI总分≤5，整体未提示明显睡眠质量问题。";
+
  return {sasText,psqiText};
 }
 
 function buildReport(data){
  const report=document.getElementById("report");
- const it=interpret(data.sas,data.psqi,data.sf);
- const sfRows=Object.entries(data.sf).map(([k,v])=>`<tr><td>${k}</td><td>${v}</td></tr>`).join("");
+ const it=interpret(data.sas,data.psqi);
+ const sfRows=Object.entries(data.sf).map(([k,v])=>
+   `<tr><td>${k}</td><td>${v}</td></tr>`).join("");
+
  report.innerHTML=`
  <h2 class="section-title">您的综合评估报告</h2>
  <p>志愿者编号：<b>${escapeHtml(data.pid)}</b>　评估日期：${escapeHtml(data.date||"")}</p>
+
  <div class="score-grid">
- <div class="score-card"><b>SAS</b><div class="score-num">${data.sas.index}</div><div>原始分：${data.sas.raw}</div><p>${it.sasText}</p></div>
- <div class="score-card"><b>PSQI</b><div class="score-num">${data.psqi.total}/21</div><p>${it.psqiText}</p></div>
- <div class="score-card"><b>SF-36</b><div class="score-num">8维度</div><p>各维度0–100分，高分通常代表更好的健康状态。</p></div>
+   <div class="score-card">
+     <b>冬泳运动强度 RPE</b>
+     <div class="score-num">${escapeHtml(data.winter.rpe)}</div>
+     <p>${escapeHtml(rpeInterpret(data.winter.rpe))}</p>
+   </div>
+
+   <div class="score-card">
+     <b>SAS</b>
+     <div class="score-num">${data.sas.index}</div>
+     <div>原始分：${data.sas.raw}</div>
+     <p>${it.sasText}</p>
+   </div>
+
+   <div class="score-card">
+     <b>PSQI</b>
+     <div class="score-num">${data.psqi.total}/21</div>
+     <p>${it.psqiText}</p>
+   </div>
+
+   <div class="score-card">
+     <b>SF-36</b>
+     <div class="score-num">8维度</div>
+     <p>各维度0–100分，高分通常代表更好的健康状态。</p>
+   </div>
  </div>
- <h3>SF-36 八维度得分</h3>
- <table><tr><th>维度</th><th>得分</th></tr>${sfRows}</table>
- <h3>研究提示</h3>
- <div class="notice">以上结果用于科研健康状态评估和反馈，不用于诊断疾病。如存在明显或持续的焦虑、睡眠问题或身体不适，请咨询专业人员。</div>
- <div class="actions"><button type="button" onclick="window.print()">打印/保存为PDF</button></div>`;
+
+ <h3>一、冬泳行为与运动暴露</h3>
+ <table>
+   <tr><th>项目</th><th>本次填写结果</th></tr>
+   <tr><td>冬泳前热身</td><td>${escapeHtml(data.winter.warmup)}</td></tr>
+   <tr><td>冬泳后保暖</td><td>${escapeHtml(data.winter.rewarming)}</td></tr>
+   <tr><td>明显寒战</td><td>${escapeHtml(data.winter.shivering)}</td></tr>
+   <tr><td>明显肢体麻木</td><td>${escapeHtml(data.winter.numbness)}</td></tr>
+   <tr><td>冬泳持续时间</td><td>${escapeHtml(data.winter.duration)} 分钟</td></tr>
+   <tr><td>RPE</td><td>${escapeHtml(data.winter.rpe)}（${escapeHtml(rpeInterpret(data.winter.rpe))}）</td></tr>
+ </table>
+
+ <h3>二、SF-36 八维度得分</h3>
+ <table>
+   <tr><th>维度</th><th>得分</th></tr>${sfRows}
+ </table>
+
+ <h3>三、研究提示</h3>
+ <div class="notice">
+   本报告用于科研健康状态评估和个人反馈，不用于疾病诊断。
+   如存在明显或持续的焦虑、睡眠问题、明显寒战、肢体麻木或其他身体不适，请及时咨询专业人员。
+ </div>
+
+ <div class="actions">
+   <button type="button" onclick="window.print()">打印 / 保存为PDF</button>
+ </div>`;
  report.style.display="block";
  report.scrollIntoView({behavior:"smooth"});
 }
@@ -296,39 +570,85 @@ function updateProgress(){
  const form=document.getElementById("assessmentForm");
  const required=form.querySelectorAll("[required]");
  let done=0;
+ const handledRadio=new Set();
+
  required.forEach(el=>{
-   if((el.type==="radio" && form.querySelector(`input[name="${el.name}"]:checked`)) || (el.type!=="radio" && el.value)) done++;
+   if(el.type==="radio"){
+     if(handledRadio.has(el.name)) return;
+     handledRadio.add(el.name);
+     if(form.querySelector(`input[name="${el.name}"]:checked`)) done++;
+   }else if(el.value){
+     done++;
+   }
  });
- document.getElementById("progressBar").style.width=Math.round(done/required.length*100)+"%";
+ document.getElementById("progressBar").style.width=
+   Math.round(done/(required.length-handledRadio.size+handledRadio.size)*100)+"%";
 }
+
 document.addEventListener("change",updateProgress);
 document.addEventListener("input",updateProgress);
 
 document.getElementById("draftBtn").addEventListener("click",()=>{
- localStorage.setItem("winterSwimAssessmentDraft",JSON.stringify(getAllRaw()));
+ localStorage.setItem(
+   "winterSwimAssessmentDraft",
+   JSON.stringify(getAllRaw())
+ );
  alert("当前填写进度已保存在本设备浏览器中。");
 });
 
 document.getElementById("assessmentForm").addEventListener("submit",async function(e){
  e.preventDefault();
- if(!this.checkValidity()){this.reportValidity();return;}
+
+ if(!this.checkValidity()){
+   this.reportValidity();
+   return;
+ }
+
  const fd=new FormData(this);
- const sas=scoreSAS(), sf=scoreSF36(), psqi=scorePSQI();
+ const sas=scoreSAS();
+ const sf=scoreSF36();
+ const psqi=scorePSQI();
+
  const data={
    timestamp:new Date().toISOString(),
-   pid:fd.get("pid"),age:fd.get("age"),sex:fd.get("sex"),date:fd.get("date"),
-   sas,psqi,sf,raw:getAllRaw()
+
+   pid:fd.get("pid"),
+   age:fd.get("age"),
+   sex:fd.get("sex"),
+   date:fd.get("date"),
+
+   winter:{
+     warmup:fd.get("winter_warmup"),
+     rewarming:fd.get("winter_rewarming"),
+     shivering:fd.get("winter_shivering"),
+     numbness:fd.get("winter_numbness"),
+     duration:fd.get("winter_duration"),
+     rpe:fd.get("winter_rpe")
+   },
+
+   sas:sas,
+   psqi:psqi,
+   sf:sf,
+
+   raw:getAllRaw()
  };
+
  buildReport(data);
- if(API_URL && !API_URL.includes("PASTE_GOOGLE")){
+
+ if(API_URL){
    try{
-     await fetch(API_URL,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(data)});
+     await fetch(API_URL,{
+       method:"POST",
+       mode:"no-cors",
+       headers:{"Content-Type":"text/plain;charset=utf-8"},
+       body:JSON.stringify(data)
+     });
      alert("提交成功，个人报告已生成。");
    }catch(err){
      alert("个人报告已生成，但数据后台上传失败，请联系研究人员。");
    }
  }else{
-   alert("个人报告已生成。当前网页尚未连接数据后台，因此测试数据不会上传。");
+   alert("个人报告已生成。");
  }
 });
 
