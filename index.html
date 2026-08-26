@@ -51,6 +51,11 @@ th,td{padding:9px;border-bottom:1px solid var(--border);text-align:left}
 .rpe-table{overflow-x:auto}
 .rpe-table table{min-width:520px}
 .rpe-table th,.rpe-table td{text-align:center}
+.rpe-choice{display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;margin:0;padding:6px 8px;border-radius:9px}
+.rpe-choice:hover{background:#f0f8fa}
+.rpe-choice input{width:19px;height:19px;margin:0;accent-color:var(--primary);cursor:pointer}
+.rpe-choice:has(input:checked){background:#edf7f9;color:var(--primary);font-weight:600}
+.rpe-choice-text{display:inline-block}
 footer{text-align:center;color:var(--muted);font-size:12px;padding:12px}
 @media(max-width:600px){
  main{padding:8px 8px 30px}
@@ -58,6 +63,10 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:12px}
  header h1{font-size:22px}
  .section-title{font-size:20px}
  .option{width:100%}
+ .rpe-table table{min-width:0}
+ .rpe-table th,.rpe-table td{padding:8px 5px}
+ .rpe-choice{gap:5px;padding:5px 3px}
+ .rpe-choice input{width:18px;height:18px}
 }
 </style>
 </head>
@@ -87,7 +96,7 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:12px}
 
 <section class="card">
 <h2 class="section-title">二、冬泳行为与运动暴露评价</h2>
-<div class="instruction">请根据您<strong>最近一次游泳</strong>的实际情况填写。以下内容用于描述冬泳过程中的运动强度、保暖行为及寒冷相关感受。</div>
+<div class="instruction">请根据您<strong>最近一次冬游</strong>的实际情况填写。以下内容用于描述冬泳过程中的运动强度、保暖行为及寒冷相关感受。</div>
 
 <div class="q">
 <div class="q-title">1. 每次冬泳前是否进行热身： <span class="required">*</span></div>
@@ -131,39 +140,33 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:12px}
 
 <div class="q">
 <div class="q-title">6. Borg Rating of Perceived Exertion（RPE）运动强度评价： <span class="required">*</span></div>
-<div class="instruction">请根据您刚才进行冬泳时的整体身体用力程度，选择最符合您感受的等级。</div>
+<div class="instruction">请根据您<strong>最近一次进行冬游</strong>时的整体身体用力程度，直接在下方对应的“主观感受”处选择最符合您感受的等级。</div>
+
 <div class="rpe-table">
 <table>
-<tr><th>RPE评分</th><th>主观感受</th></tr>
-<tr><td>6</td><td>完全不费力</td></tr>
-<tr><td>7–8</td><td>极其轻松</td></tr>
-<tr><td>9–10</td><td>很轻松</td></tr>
-<tr><td>11–12</td><td>比较轻松/有些吃力</td></tr>
-<tr><td>13–14</td><td>有些吃力</td></tr>
-<tr><td>15–16</td><td>吃力</td></tr>
-<tr><td>17–18</td><td>非常吃力</td></tr>
-<tr><td>19</td><td>极其吃力</td></tr>
-<tr><td>20</td><td>最大努力</td></tr>
+<thead>
+<tr><th>RPE评分</th><th>主观感受（请选择）</th></tr>
+</thead>
+<tbody>
+<tr><td>6</td><td><label class="rpe-choice"><input required type="radio" name="rpe" value="6"><span class="rpe-choice-text">完全不费力</span></label></td></tr>
+<tr><td>7–8</td><td><label class="rpe-choice"><input required type="radio" name="rpe" value="7"><span class="rpe-choice-text">极其轻松（7分）</span></label></td></tr>
+<tr><td></td><td><label class="rpe-choice"><input required type="radio" name="rpe" value="8"><span class="rpe-choice-text">极其轻松（8分）</span></label></td></tr>
+<tr><td>9–10</td><td><label class="rpe-choice"><input required type="radio" name="rpe" value="9"><span class="rpe-choice-text">很轻松（9分）</span></label></td></tr>
+<tr><td></td><td><label class="rpe-choice"><input required type="radio" name="rpe" value="10"><span class="rpe-choice-text">很轻松（10分）</span></label></td></tr>
+<tr><td>11–12</td><td><label class="rpe-choice"><input required type="radio" name="rpe" value="11"><span class="rpe-choice-text">比较轻松/有些吃力（11分）</span></label></td></tr>
+<tr><td></td><td><label class="rpe-choice"><input required type="radio" name="rpe" value="12"><span class="rpe-choice-text">比较轻松/有些吃力（12分）</span></label></td></tr>
+<tr><td>13–14</td><td><label class="rpe-choice"><input required type="radio" name="rpe" value="13"><span class="rpe-choice-text">有些吃力（13分）</span></label></td></tr>
+<tr><td></td><td><label class="rpe-choice"><input required type="radio" name="rpe" value="14"><span class="rpe-choice-text">有些吃力（14分）</span></label></td></tr>
+<tr><td>15–16</td><td><label class="rpe-choice"><input required type="radio" name="rpe" value="15"><span class="rpe-choice-text">吃力（15分）</span></label></td></tr>
+<tr><td></td><td><label class="rpe-choice"><input required type="radio" name="rpe" value="16"><span class="rpe-choice-text">吃力（16分）</span></label></td></tr>
+<tr><td>17–18</td><td><label class="rpe-choice"><input required type="radio" name="rpe" value="17"><span class="rpe-choice-text">非常吃力（17分）</span></label></td></tr>
+<tr><td></td><td><label class="rpe-choice"><input required type="radio" name="rpe" value="18"><span class="rpe-choice-text">非常吃力（18分）</span></label></td></tr>
+<tr><td>19</td><td><label class="rpe-choice"><input required type="radio" name="rpe" value="19"><span class="rpe-choice-text">极其吃力</span></label></td></tr>
+<tr><td>20</td><td><label class="rpe-choice"><input required type="radio" name="rpe" value="20"><span class="rpe-choice-text">最大努力</span></label></td></tr>
+</tbody>
 </table>
 </div>
-<div class="options" style="margin-top:12px">
-<label class="option"><input required type="radio" name="rpe" value="6"><span>6</span></label>
-<label class="option"><input required type="radio" name="rpe" value="7"><span>7</span></label>
-<label class="option"><input required type="radio" name="rpe" value="8"><span>8</span></label>
-<label class="option"><input required type="radio" name="rpe" value="9"><span>9</span></label>
-<label class="option"><input required type="radio" name="rpe" value="10"><span>10</span></label>
-<label class="option"><input required type="radio" name="rpe" value="11"><span>11</span></label>
-<label class="option"><input required type="radio" name="rpe" value="12"><span>12</span></label>
-<label class="option"><input required type="radio" name="rpe" value="13"><span>13</span></label>
-<label class="option"><input required type="radio" name="rpe" value="14"><span>14</span></label>
-<label class="option"><input required type="radio" name="rpe" value="15"><span>15</span></label>
-<label class="option"><input required type="radio" name="rpe" value="16"><span>16</span></label>
-<label class="option"><input required type="radio" name="rpe" value="17"><span>17</span></label>
-<label class="option"><input required type="radio" name="rpe" value="18"><span>18</span></label>
-<label class="option"><input required type="radio" name="rpe" value="19"><span>19</span></label>
-<label class="option"><input required type="radio" name="rpe" value="20"><span>20</span></label>
-</div>
-<div class="small">本次游泳 RPE：请选择 6–20 分中的一个等级。</div>
+<div class="small">请选择一个您最近一次冬游时最符合实际感受的 RPE 等级（6–20分）。</div>
 </div>
 </section>
 
@@ -206,17 +209,6 @@ const pomsQuestions = [
 
 const pomsOptions = ["几乎没有（0分）","有一点（1分）","适中（2分）","相当多（3分）","非常地（4分）"];
 
-/*
-POMS简式40题的7个分量表，依据用户提供的POMS文件所列40题及公开评分资料：
-紧张：1、8、15、21、28、35
-愤怒：2、9、16、22、29、36、37
-疲劳：3、10、17、23、30
-抑郁：4、11、18、24、31、38
-精力：5、12、19、25、32、39
-慌乱：6、13、20、26、33
-自尊感：7、14、27、34、40
-TMD = 紧张+愤怒+疲劳+抑郁+慌乱 - 精力 - 自尊感 + 100
-*/
 const pomsScales = {
   tension:{label:"紧张",items:[1,8,15,21,28,35],max:24,negative:true},
   anger:{label:"愤怒",items:[2,9,16,22,29,36,37],max:28,negative:true},
@@ -369,7 +361,7 @@ function buildReport(data){
  <tr><td>明显寒战</td><td>${escapeHtml(data.raw.swim_shivering||"")}</td></tr>
  <tr><td>肢体麻木</td><td>${escapeHtml(data.raw.swim_numbness||"")}</td></tr>
  <tr><td>冬泳持续时间</td><td>${escapeHtml(data.raw.swim_duration||"")} 分钟</td></tr>
- <tr><td>本次冬泳RPE</td><td>${escapeHtml(data.raw.rpe||"")} 分（${rpeText(data.raw.rpe)}）</td></tr>`;
+ <tr><td>最近一次冬游RPE</td><td>${escapeHtml(data.raw.rpe||"")} 分（${rpeText(data.raw.rpe)}）</td></tr>`;
 
  report.innerHTML=`
  <h2 class="section-title">您的综合评估报告</h2>
