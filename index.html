@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="冬泳人群综合健康评估：冬泳行为、RPE、PSQI">
+<meta name="description" content="冬泳人群综合健康评估：冬泳行为、RPE、POMS、PSQI">
 <title>冬泳人群综合健康评估</title>
 <style>
 :root{
@@ -69,6 +69,14 @@ button{
 }
 button.secondary{background:#71838a}
 button:disabled{opacity:.55;cursor:not-allowed}
+
+.poms-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;overflow-x:auto}
+.poms-option{display:flex;align-items:center;justify-content:center;gap:5px;padding:8px 5px;border:1px solid #dce7eb;border-radius:9px;background:#fbfdfe;cursor:pointer;min-width:72px;font-size:14px}
+.poms-option input{accent-color:var(--primary)}
+.poms-option:has(input:checked){border-color:var(--primary);background:#edf7f9;color:var(--primary);font-weight:700}
+.poms-table-wrap{overflow-x:auto}
+@media(max-width:600px){.poms-grid{grid-template-columns:repeat(5,minmax(70px,1fr));min-width:380px}}
+
 .small{font-size:13px;color:var(--muted)}
 .report{display:none}
 .score-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
@@ -105,7 +113,7 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:12px}
 <body>
 <header>
   <h1>冬泳人群综合健康评估</h1>
-  <p>冬泳行为与运动暴露 · RPE · PSQI</p>
+  <p>冬泳行为与运动暴露 · RPE · POMS · PSQI</p>
 </header>
 
 <main>
@@ -226,7 +234,16 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:12px}
 </section>
 
 <section class="card">
-  <h2 class="section-title">三、PSQI 匹兹堡睡眠质量指数</h2>
+  <h2 class="section-title">三、情绪状态量表（POMS）</h2>
+  <div class="instruction">
+    请根据您<strong>上一周（包括今天）</strong>的实际感受作答。每个形容词只能选择一个最符合您实际情况的选项。
+    “几乎没有=0分，有一点=1分，适中=2分，相当多=3分，非常地=4分”。
+  </div>
+  <div id="poms"></div>
+</section>
+
+<section class="card">
+  <h2 class="section-title">四、PSQI 匹兹堡睡眠质量指数</h2>
   <div class="instruction">
     以下问题均针对<strong>近1个月</strong>。请按照您的通常情况填写。
   </div>
@@ -236,7 +253,7 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:12px}
 <section class="card actions">
   <button type="submit" id="submitBtn">提交并生成我的个人报告</button>
   <button type="button" class="secondary" id="draftBtn">保存当前填写进度</button>
-  <div class="small">提交后将自动计算 PSQI 结果，并尝试将科研数据发送至研究后台。</div>
+  <div class="small">提交后将自动计算 POMS 和 PSQI 结果，并尝试将科研数据发送至研究后台。</div>
 </section>
 
 </form>
@@ -276,7 +293,63 @@ function makeOptions(name,options){
     </label>`).join("")}</div>`;
 }
 
+const pomsItems=[
+  "紧张的","生气的","无精打采的","不快活的","轻松愉快的","慌乱的","为难的","心烦意乱的","气坏的","劳累的",
+  "悲伤的","精神饱满的","集中不了注意力的","自信的","内心不安的","气恼的","精疲力尽的","沮丧的","主动积极的","慌张的",
+  "坐卧不安的","烦恼的","倦怠的","忧郁的","兴致勃勃的","健忘的","有能力感的","易激动的","愤怒的","疲惫不堪的",
+  "毫无价值的","富有活力的","有不确定感的","满意的","担忧的","狂怒的","抱怨的","孤弱无助的","劲头十足的","自豪的"
+];
+
+const pomsOptions=["几乎没有","有一点","适中","相当多","非常地"];
+
+const pomsDimensions={
+  "紧张":[1,8,15,21,28,35],
+  "愤怒":[2,9,16,22,29,36,37],
+  "疲劳":[3,10,17,23,30],
+  "抑郁":[4,11,18,24,31,38],
+  "精力":[5,12,19,25,32,39],
+  "慌乱":[6,13,20,26,33],
+  "自尊感":[7,14,27,34,40]
+};
+
+function scorePOMS(){
+  const vals={};
+  for(let i=1;i<=40;i++) vals[i]=getRadio("poms_"+i)-1;
+  const out={};
+  for(const [name,items] of Object.entries(pomsDimensions)){
+    out[name]=items.reduce((sum,n)=>sum+vals[n],0);
+  }
+  out.TMD=out["紧张"]+out["愤怒"]+out["疲劳"]+out["抑郁"]+out["慌乱"]-out["精力"]-out["自尊感"]+100;
+  out.raw=vals;
+  return out;
+}
+
+function pomsInterpret(poms){
+  return `POMS各维度为原始分：紧张${poms["紧张"]}、愤怒${poms["愤怒"]}、疲劳${poms["疲劳"]}、抑郁${poms["抑郁"]}、精力${poms["精力"]}、慌乱${poms["慌乱"]}、自尊感${poms["自尊感"]}。TMD为${poms.TMD}。TMD越高通常提示负性心境越明显。`;
+}
+
 function render(){
+  const poms=document.getElementById("poms");
+  poms.innerHTML=`
+    <div class="poms-table-wrap">
+      <table>
+        <thead><tr><th style="min-width:210px">形容词</th><th colspan="5">请选择最符合您实际情况的程度</th></tr></thead>
+        <tbody>
+          ${pomsItems.map((item,i)=>`
+            <tr>
+              <td><b>${i+1}. ${escapeHtml(item)}</b></td>
+              <td colspan="5"><div class="poms-grid">
+                ${pomsOptions.map((x,j)=>`
+                  <label class="poms-option">
+                    <input required type="radio" name="poms_${i+1}" value="${j+1}">
+                    <span>${escapeHtml(x)}</span>
+                  </label>`).join("")}
+              </div></td>
+            </tr>`).join("")}
+        </tbody>
+      </table>
+    </div>`;
+
   const psqi=document.getElementById("psqi");
 
   psqi.innerHTML=`
@@ -428,6 +501,12 @@ function buildReport(data){
       </div>
 
       <div class="score-card">
+        <b>POMS TMD</b>
+        <div class="score-num">${data.poms.TMD}</div>
+        <p>${escapeHtml(pomsInterpret(data.poms))}</p>
+      </div>
+
+      <div class="score-card">
         <b>PSQI</b>
         <div class="score-num">${data.psqi.total}/21</div>
         <p>${it.psqiText}</p>
@@ -445,7 +524,21 @@ function buildReport(data){
       <tr><td>RPE</td><td>${escapeHtml(data.winter.rpe)}（${escapeHtml(rpeInterpret(data.winter.rpe))}）</td></tr>
     </table>
 
-    <h3>二、PSQI 睡眠质量</h3>
+    <h3>二、POMS 情绪状态</h3>
+    <table>
+      <tr><th>维度</th><th>原始分</th></tr>
+      <tr><td>紧张</td><td>${data.poms["紧张"]}</td></tr>
+      <tr><td>愤怒</td><td>${data.poms["愤怒"]}</td></tr>
+      <tr><td>疲劳</td><td>${data.poms["疲劳"]}</td></tr>
+      <tr><td>抑郁</td><td>${data.poms["抑郁"]}</td></tr>
+      <tr><td>精力</td><td>${data.poms["精力"]}</td></tr>
+      <tr><td>慌乱</td><td>${data.poms["慌乱"]}</td></tr>
+      <tr><td>自尊感</td><td>${data.poms["自尊感"]}</td></tr>
+      <tr><td><b>TMD</b></td><td><b>${data.poms.TMD}</b></td></tr>
+    </table>
+    <p class="small">注：这里计算的是POMS原始分和TMD，不根据常模换算T分数；T分数需要使用相应的中国常模。</p>
+
+    <h3>三、PSQI 睡眠质量</h3>
     <table>
       <tr><th>指标</th><th>结果</th></tr>
       <tr><td>PSQI总分</td><td>${data.psqi.total}/21</td></tr>
@@ -512,6 +605,7 @@ document.getElementById("assessmentForm").addEventListener("submit",async functi
   }
 
   const fd=new FormData(this);
+  const poms=scorePOMS();
   const psqi=scorePSQI();
 
   const data={
@@ -531,6 +625,7 @@ document.getElementById("assessmentForm").addEventListener("submit",async functi
       rpe:fd.get("winter_rpe")
     },
 
+    poms:poms,
     psqi:psqi,
     raw:getAllRaw()
   };
