@@ -267,7 +267,7 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:12px}
 "use strict";
 
 /* Google Apps Script 后台地址：保持与你当前问卷一致 */
-const API_URL = "https://script.google.com/macros/s/AKfycbxuZwx88EwbDnv2MPg_onhpaTCDTvEPOjQLTDZYV3RyjtyMFEAVt8l2H-EYqhOYRLmu/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbx7z60VIlJ6mP0ifvykHHO01X19I5CuV5-4hJR8unQ5Z5nAOwAp5m7Jp9gWE0zda9bM6g/exec";
 
 const psqiOptions=["无","<1次/周","1–2次/周","≥3次/周"];
 const psqiQuestions=[
@@ -641,9 +641,10 @@ document.getElementById("assessmentForm").addEventListener("submit",async functi
         body:JSON.stringify(data)
       });
 
-      alert("提交成功，个人报告已生成。");
+      alert("数据已发送，个人报告已生成。\n如果Google Sheet仍没有新记录，请检查Apps Script的doPost和部署版本。");
     }catch(err){
-      alert("个人报告已生成，但数据后台上传失败，请联系研究人员。");
+      console.error("后台上传失败：", err);
+      alert("个人报告已生成，但数据没有成功发送到后台，请检查网络或Apps Script部署。");
     }
   }else{
     alert("个人报告已生成。");
