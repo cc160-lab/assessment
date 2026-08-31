@@ -6,7 +6,7 @@
 <meta name="description" content="冬泳人群综合健康评估：冬泳行为、RPE、POMS、PSQI">
 <title>冬泳人群综合健康评估</title>
 <style>
-:root{--primary:#176b87;--primary2:#238a9a;--bg:#f4f8fa;--card:#fff;--text:#20323b;--muted:#667780;--border:#dbe7eb;--danger:#b42318}
+:root{--primary:#176b87;--primary2:#238a9a;--bg:#f4f8fa;--card:#fff;--text:#20323b;--muted:#667780;--border:#dbe7eb;--danger:#b42318;--ok:#1a7f37;--warn:#e6a23c}
 *{box-sizing:border-box}html{scroll-behavior:smooth}
 body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;font-size:16px;line-height:1.65}
 header{background:linear-gradient(135deg,var(--primary),var(--primary2));color:#fff;padding:25px 16px 22px;text-align:center}
@@ -15,7 +15,9 @@ main{max-width:900px;margin:0 auto;padding:14px 12px 40px}
 .card{background:var(--card);border:1px solid var(--border);border-radius:17px;margin:14px 0;padding:20px;box-shadow:0 3px 12px rgba(20,50,60,.045)}
 .section-title{color:var(--primary);font-size:22px;margin:0 0 14px}
 .instruction{background:#edf7f9;border-left:4px solid var(--primary);padding:12px 14px;border-radius:8px;margin-bottom:14px}
-.notice{background:#fff8e8;border-left:4px solid #e6a23c;padding:12px 14px;border-radius:8px;margin-top:14px}
+.notice{background:#fff8e8;border-left:4px solid var(--warn);padding:12px 14px;border-radius:8px;margin-top:14px}
+.notice.ok{background:#eaf7ee;border-left-color:var(--ok)}
+.notice.warn{background:#fff8e8;border-left-color:var(--warn)}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:13px}
 .field label{font-weight:600;display:block;margin-bottom:5px}
 input[type=text],input[type=number],input[type=date],input[type=time],select{width:100%;padding:11px 12px;border:1px solid #c9d8de;border-radius:10px;background:#fff;font-size:16px;color:var(--text)}
@@ -30,7 +32,8 @@ input[type=text],input[type=number],input[type=date],input[type=time],select{wid
 .progress-bar{height:100%;width:0;background:var(--primary2);transition:width .2s}
 .actions{text-align:center;padding-top:10px}
 button{border:0;border-radius:11px;padding:13px 20px;background:var(--primary);color:#fff;font-size:17px;font-weight:600;cursor:pointer;margin:4px}
-button.secondary{background:#71838a}button:disabled{opacity:.55;cursor:not-allowed}
+button.secondary{background:#71838a}button.ghost{background:#fff;color:var(--primary);border:1px solid var(--primary)}
+button:disabled{opacity:.55;cursor:not-allowed}
 .small{font-size:13px;color:var(--muted);margin-top:6px}.report{display:none}
 .score-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:15px}
 .score-card{border:1px solid var(--border);border-radius:13px;padding:14px;background:#fafcfd}.score-num{font-size:28px;color:var(--primary);font-weight:750;margin:6px 0}
@@ -43,8 +46,10 @@ button.secondary{background:#71838a}button:disabled{opacity:.55;cursor:not-allow
 .poms-option input{display:none}.poms-option:has(input:checked){border-color:var(--primary);background:#edf7f9;color:var(--primary);font-weight:700}
 table{width:100%;border-collapse:collapse;margin-top:10px}th,td{padding:9px;border-bottom:1px solid var(--border);text-align:left}
 footer{text-align:center;color:var(--muted);font-size:12px;padding:16px}
+.sync-bar{display:none;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;background:#fff8e8;border:1px solid #f1d9a8;border-radius:12px;padding:10px 14px;margin:10px 0}
+.sync-bar b{color:#8a5a10}
 @media(max-width:600px){main{padding:8px}.card{padding:15px}.option{width:100%}.rpe-grid{grid-template-columns:repeat(3,1fr)}}
-@media print{header,.progress-wrap,.actions,footer,#assessmentForm{display:none!important}.card{box-shadow:none;border:0}}
+@media print{header,.progress-wrap,.actions,footer,#assessmentForm,.sync-bar{display:none!important}.card{box-shadow:none;border:0}}
 </style>
 </head>
 <body>
@@ -56,6 +61,15 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:16px}
 
 <main>
   <div class="progress-wrap"><div class="progress"><div class="progress-bar" id="progressBar"></div></div></div>
+
+  <!-- 未同步数据提示条：有本地待同步记录时才显示 -->
+  <div class="sync-bar" id="syncBar">
+    <span>⚠️ 有 <b id="syncCount">0</b> 条问卷因网络原因尚未上传成功，已安全保存在本设备。</span>
+    <span>
+      <button type="button" class="ghost" id="syncRetryBtn" style="padding:8px 14px;font-size:14px">立即重试上传</button>
+      <button type="button" class="ghost" id="syncExportBtn" style="padding:8px 14px;font-size:14px">导出/复制这些数据</button>
+    </span>
+  </div>
 
   <form id="assessmentForm" novalidate>
     <section class="card">
@@ -72,7 +86,7 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:16px}
     <section class="card">
       <h2 class="section-title">二、冬泳行为与运动暴露评价</h2>
       <div class="instruction">请根据您<strong>最近一次冬泳</strong>的实际情况填写。</div>
-      
+
       <div class="q"><div class="q-title">1. 每次冬泳前是否进行热身？ <span class="required">*</span></div><div class="options">
         <label class="option"><input required type="radio" name="winter_warmup" value="是">是</label>
         <label class="option"><input required type="radio" name="winter_warmup" value="否">否</label></div></div>
@@ -116,7 +130,7 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:16px}
     <section class="card actions">
       <button type="submit" id="submitBtn">提交并生成我的个人报告</button>
       <button type="button" class="secondary" id="draftBtn">保存当前填写进度</button>
-      <div class="small">提交后将在后台发送数据，并即刻生成个人反馈报告。</div>
+      <div class="small">提交后将立即在本页生成个人反馈报告；数据会同时尝试上传，若网络暂时无法上传，我们会在本设备保留一份并自动重试，不会丢失。</div>
     </section>
   </form>
 
@@ -129,7 +143,12 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:16px}
 <script>
 "use strict";
 
-const API_URL = "https://script.google.com/macros/s/AKfycbx7z60VIlJ6mP0ifvykHHO01X19I5CuV5-4hJR8unQ5Z5nAOwAp5m7Jp9gWE0zda9bM6g/exec";
+// 提交地址已改为 Cloudflare Worker 中转（部署步骤见 worker.js 顶部注释），
+// 由中转再转发到 Google Apps Script，解决大陆移动网络直连 script.google.com 不稳定的问题。
+// 部署好 Worker 后，请把下面这行换成您自己的 Worker 地址，例如：
+// https://winterswim-relay.your-subdomain.workers.dev
+const API_URL = "https://winter.nichenchen160.workers.dev/";
+const PENDING_KEY = "winterSwim_pendingSubmissions"; // 上传失败时的本地缓存队列
 
 const RPE_MAP = {
   6: "完全不费力", 7: "极其轻松", 8: "极其轻松", 9: "很轻松", 10: "很轻松",
@@ -247,7 +266,7 @@ function scorePSQI() {
   const c7 = day === 0 ? 0 : day <= 2 ? 1 : day <= 4 ? 2 : 3;
 
   const comps = [c1, c2, c3, c4, c5, c6, c7];
-  return { total: comps.reduce((a, b) => a + b, 0) };
+  return { total: comps.reduce((a, b) => a + b, 0), components: comps };
 }
 
 function collectData() {
@@ -268,31 +287,106 @@ function collectData() {
   };
 }
 
-// 采用 no-cors fetch 提交，彻底兼容手机微信扫码/网页跨域发送
+/* ---------- 本地待同步队列：解决扫码/移动网络下 Google 服务不可达导致的丢单问题 ---------- */
+function getPending() {
+  try { return JSON.parse(localStorage.getItem(PENDING_KEY) || "[]"); } catch (e) { return []; }
+}
+function setPending(list) {
+  try { localStorage.setItem(PENDING_KEY, JSON.stringify(list)); } catch (e) {}
+  refreshSyncBar();
+}
+function refreshSyncBar() {
+  const list = getPending();
+  const bar = document.getElementById("syncBar");
+  document.getElementById("syncCount").textContent = list.length;
+  bar.style.display = list.length ? "flex" : "none";
+}
+
+// Worker 中转会补上 CORS 响应头，所以这里改用普通 fetch（不再是 no-cors 盲发），
+// 可以真正读到 Apps Script 返回的 JSON（success / status / message）。
+async function postOnce(data) {
+  const res = await fetch(API_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data)
+  });
+  let result = null;
+  try { result = await res.json(); } catch (e) {}
+  return { httpOk: res.ok, result };
+}
+
+// 返回 { success, status, message }
+//   success: true  → SAVED / DUPLICATE_SUBMISSION / DUPLICATE_PID_DATE 都算成功（数据已在表格里）
+//   success: false → 网络不通 / 服务器出错，需要走本地重试队列
 async function submitToGoogle(data) {
   try {
-    await fetch(API_URL, {
-      method: "POST",
-      mode: "no-cors",
-      headers: { "Content-Type": "text/plain" },
-      body: JSON.stringify(data)
-    });
-    return true;
+    const { httpOk, result } = await postOnce(data);
+    if (httpOk && result && result.success) {
+      return { success: true, status: result.status || "SAVED", message: result.message || "" };
+    }
+    return { success: false, status: (result && result.status) || "SERVER_ERROR", message: (result && result.message) || "服务器返回异常" };
   } catch (e) {
     console.error("提交异常", e);
-    return false;
+    return { success: false, status: "NETWORK_ERROR", message: String(e) };
   }
 }
 
-function buildReport(data) {
+// 提交入口：先尝试直接上传；失败则存入本地队列，之后自动/手动重试
+async function submitWithFallback(data) {
+  const outcome = await submitToGoogle(data);
+  if (!outcome.success) {
+    const list = getPending();
+    if (!list.some(d => d.submission_id === data.submission_id)) list.push(data);
+    setPending(list);
+  }
+  return outcome;
+}
+
+async function flushPendingQueue() {
+  const list = getPending();
+  if (!list.length) return;
+  const stillPending = [];
+  for (const item of list) {
+    const outcome = await submitToGoogle(item);
+    if (!outcome.success) stillPending.push(item);
+  }
+  setPending(stillPending);
+}
+
+function exportPending() {
+  const list = getPending();
+  if (!list.length) { alert("当前没有待导出的数据。"); return; }
+  const text = JSON.stringify(list, null, 2);
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text)
+      .then(() => alert("已复制 " + list.length + " 条未同步数据到剪贴板，可粘贴发送给研究人员。"))
+      .catch(() => window.prompt("复制失败，请手动全选下方内容发送给研究人员：", text));
+  } else {
+    window.prompt("请手动全选下方内容发送给研究人员：", text);
+  }
+}
+/* ---------------------------------------------------------------------------------------- */
+
+function syncNoticeHtml_(outcome) {
+  if (outcome.success && outcome.status === "SAVED") {
+    return { cls: "ok", text: "✅ 您的数据已成功上传，感谢您的参与！" };
+  }
+  if (outcome.success && (outcome.status === "DUPLICATE_SUBMISSION" || outcome.status === "DUPLICATE_PID_DATE")) {
+    return { cls: "ok", text: "✅ 系统检测到您此前已提交过，本次未重复保存（不影响您查看这份报告）。" };
+  }
+  return { cls: "warn", text: "⚠️ 由于网络原因，数据暂时无法上传，已安全保存在本设备，页面会在网络恢复后自动重试上传，请勿重复提交本份问卷。" };
+}
+
+function buildReport(data, outcome) {
   const report = document.getElementById("report");
   const p = data.poms, psqi = data.psqi;
   const rpeDesc = RPE_MAP[data.winter.rpe] || "";
+  const notice = syncNoticeHtml_(outcome);
 
   report.innerHTML = `
     <h2 class="section-title">您的综合评估报告</h2>
     <p>志愿者编号：<b>${escapeHtml(data.pid)}</b> &nbsp;|&nbsp; 评估日期：${escapeHtml(data.date || "未填写")}</p>
-    
+
     <div class="score-grid">
       <div class="score-card">
         <b>冬泳运动强度 (RPE)</b>
@@ -327,7 +421,10 @@ function buildReport(data) {
       <tr><td>${p.tension}</td><td>${p.anger}</td><td>${p.fatigue}</td><td>${p.depression}</td><td>${p.vigor}</td><td>${p.confusion}</td><td>${p.esteem}</td></tr>
     </table>
 
-    <div class="notice">声明：本报告用于科研健康状态评估和个人反馈，不替代临床诊断。</div>
+    <div class="notice ${notice.cls}">
+      ${notice.text}
+      <br>声明：本报告用于科研健康状态评估和个人反馈，不替代临床诊断。
+    </div>
     <div class="actions">
       <button type="button" onclick="window.print()">打印 / 保存为PDF</button>
       <button type="button" class="secondary" onclick="document.getElementById('assessmentForm').style.display='block';">修改问卷</button>
@@ -365,6 +462,14 @@ document.getElementById("draftBtn").addEventListener("click", () => {
   alert("填表进度已保存在本设备浏览器中。");
 });
 
+document.getElementById("syncRetryBtn").addEventListener("click", async () => {
+  const btn = document.getElementById("syncRetryBtn");
+  btn.disabled = true; btn.textContent = "正在重试...";
+  await flushPendingQueue();
+  btn.disabled = false; btn.textContent = "立即重试上传";
+});
+document.getElementById("syncExportBtn").addEventListener("click", exportPending);
+
 document.getElementById("assessmentForm").addEventListener("submit", async function(e) {
   e.preventDefault();
   if (!this.checkValidity()) {
@@ -378,17 +483,18 @@ document.getElementById("assessmentForm").addEventListener("submit", async funct
 
   try {
     const data = collectData();
-    buildReport(data);
-    await submitToGoogle(data);
-    alert("问卷提交成功！个人评估报告已生成。");
+    const outcome = await submitWithFallback(data);
+    buildReport(data, outcome);
   } catch (err) {
     console.error(err);
-    alert("报告已生成，网络连接较慢，请勿重复提交。");
+    alert("生成报告时出现异常，请重试。");
   } finally {
     btn.disabled = false;
     btn.textContent = "提交并生成我的个人报告";
   }
 });
+
+window.addEventListener("online", flushPendingQueue);
 
 window.addEventListener("DOMContentLoaded", () => {
   renderRPE();
@@ -397,6 +503,8 @@ window.addEventListener("DOMContentLoaded", () => {
   const d = document.querySelector('[name="date"]');
   if (d) d.value = new Date().toISOString().slice(0, 10);
   updateProgress();
+  refreshSyncBar();
+  flushPendingQueue(); // 页面打开时自动尝试补传之前失败的数据
 });
 </script>
 </body>
