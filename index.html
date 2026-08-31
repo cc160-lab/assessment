@@ -305,29 +305,92 @@ function refreshSyncBar() {
 // Worker 中转会补上 CORS 响应头，所以这里改用普通 fetch（不再是 no-cors 盲发），
 // 可以真正读到 Apps Script 返回的 JSON（success / status / message）。
 async function postOnce(data) {
-  const res = await fetch(API_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data)
-  });
-  let result = null;
-  try { result = await res.json(); } catch (e) {}
-  return { httpOk: res.ok, result };
+
+  const controller = new AbortController();
+
+  const timer = setTimeout(() => {
+    controller.abort();
+  }, 15000);
+
+  try {
+
+    const res = await fetch(API_URL, {
+      method: "POST",
+
+      /*
+       * 关键修改：
+       * 使用 text/plain，属于浏览器简单请求，
+       * 手机扫码/微信/移动网络通常不会再进行 OPTIONS 预检。
+       */
+      headers: {
+        "Content-Type": "text/plain;charset=utf-8"
+      },
+
+      body: JSON.stringify(data),
+
+      signal: controller.signal,
+
+      cache: "no-store"
+    });
+
+    const text = await res.text();
+
+    let result = null;
+
+    try {
+      result = JSON.parse(text);
+    } catch (e) {
+      console.error("服务器返回的不是JSON：", text);
+    }
+
+    return {
+      httpOk: res.ok,
+      result
+    };
+
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 // 返回 { success, status, message }
 //   success: true  → SAVED / DUPLICATE_SUBMISSION / DUPLICATE_PID_DATE 都算成功（数据已在表格里）
 //   success: false → 网络不通 / 服务器出错，需要走本地重试队列
 async function submitToGoogle(data) {
+
   try {
+
     const { httpOk, result } = await postOnce(data);
+
     if (httpOk && result && result.success) {
-      return { success: true, status: result.status || "SAVED", message: result.message || "" };
+      return {
+        success: true,
+        status: result.status || "SAVED",
+        message: result.message || "数据已保存"
+      };
     }
-    return { success: false, status: (result && result.status) || "SERVER_ERROR", message: (result && result.message) || "服务器返回异常" };
+
+    return {
+      success: false,
+      status: result?.status || "SERVER_ERROR",
+      message: result?.message || "服务器没有成功保存数据"
+    };
+
   } catch (e) {
-    console.error("提交异常", e);
-    return { success: false, status: "NETWORK_ERROR", message: String(e) };
+
+    console.error("提交失败：", e);
+
+    return {
+      success: false,
+
+      status: e.name === "AbortError"
+        ? "TIMEOUT"
+        : "NETWORK_ERROR",
+
+      message: e.name === "AbortError"
+        ? "上传超时"
+        : "网络连接失败"
+    };
   }
 }
 
@@ -471,27 +534,51 @@ document.getElementById("syncRetryBtn").addEventListener("click", async () => {
 document.getElementById("syncExportBtn").addEventListener("click", exportPending);
 
 document.getElementById("assessmentForm").addEventListener("submit", async function(e) {
+
   e.preventDefault();
+
   if (!this.checkValidity()) {
     this.reportValidity();
     return;
   }
 
   const btn = document.getElementById("submitBtn");
+
   btn.disabled = true;
-  btn.textContent = "正在提交数据...";
+  btn.textContent = "正在提交，请稍候...";
 
   try {
+
     const data = collectData();
+
+    /*
+     * 尝试上传：
+     * 成功 → Google Sheets立即收到
+     * 失败 → 自动保存到手机本地
+     */
     const outcome = await submitWithFallback(data);
+
+    /*
+     * 无论上传成功还是暂时失败，
+     * 都立即显示个人报告，避免用户一直卡在提交页面。
+     */
     buildReport(data, outcome);
+
   } catch (err) {
-    console.error(err);
-    alert("生成报告时出现异常，请重试。");
+
+    console.error("问卷提交异常：", err);
+
+    alert(
+      "提交过程中出现异常。\n\n" +
+      "如果数据无法上传，建议检查网络后重新打开页面。"
+    );
+
   } finally {
+
     btn.disabled = false;
     btn.textContent = "提交并生成我的个人报告";
   }
+
 });
 
 window.addEventListener("online", flushPendingQueue);
